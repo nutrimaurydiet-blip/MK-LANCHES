@@ -1,0 +1,8 @@
+# Dependencies and local runtime data
+node_modules/
+.netlify
+
+# Local environment secrets; keep the safe template tracked
+.env
+.env.*
+!.env.example

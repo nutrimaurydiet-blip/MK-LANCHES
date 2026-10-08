@@ -1,0 +1,8 @@
+<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#050505"><title>MK Lanches | Pedidos</title><link rel="stylesheet" href="style.css"></head><body>
+<header class="top"><button class="icon" id="menuBtn">☰</button><img src="assets/logo-mk-lanches.jpg" class="brand" alt="MK Lanches"><button class="cartIcon" id="cartBtn">🛒<b id="cartCount">0</b></button></header>
+<section class="hero"><img src="assets/logo-mk-lanches.jpg" alt="MK Lanches"><div><span>NO MOLHO 🔥 NA CHAPA</span><h1>Os melhores<br><strong>LANCHES</strong><br>da cidade!</h1><p>Sabor e qualidade em cada mordida!</p><button class="primary" onclick="document.querySelector('#menu').scrollIntoView({behavior:'smooth'})">FAZER PEDIDO</button></div></section>
+<nav class="cats" id="cats"></nav><main id="menu"><div class="sectionTitle"><h2>🔥 Lanches</h2><button id="allBtn">Ver todos ›</button></div><div class="grid" id="products"></div></main>
+<div class="stickyCart"><div>🛒 <span>Meu carrinho</span><small id="cartTotal">R$ 0,00</small></div><button class="whats" id="checkoutBtn">Finalizar pelo WhatsApp</button></div>
+<footer><b>MK Lanches</b><span>Rolim de Moura - RO</span><a href="https://wa.me/5569984496963">WhatsApp</a><a href="https://instagram.com/mk_lanchesrm">Instagram</a></footer>
+<div class="modal" id="modal"><div class="sheet"><button class="close" id="close">×</button><div id="modalBody"></div></div></div>
+<script src="config.js"></script><script src="app.js"></script></body></html>
