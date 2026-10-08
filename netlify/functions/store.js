@@ -31,7 +31,7 @@ exports.handler=async(event)=>{
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
-      if(!isAdmin(event))return json(401,{error:'Não autorizado.'});
+      if(!await isAdmin(event))return json(401,{error:'Não autorizado.'});
       let data;
       try{data=JSON.parse(event.body||'{}')}catch{return json(400,{error:'JSON inválido.'})}
       const checked=validateCatalog(data);

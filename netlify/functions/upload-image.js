@@ -6,10 +6,10 @@ const ALLOWED = new Set(['image/png', 'image/jpeg', 'image/webp']);
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Método não permitido' });
-  if (!isAdmin(event)) return json(401, { error: 'Não autorizado.' });
 
   try {
     connectLambda(event);
+    if (!await isAdmin(event)) return json(401, { error: 'Não autorizado.' });
     const body = JSON.parse(event.body || '{}');
     const dataUrl = String(body.data || '');
     const match = dataUrl.match(/^data:(image\/(?:png|jpe?g|webp));base64,(.+)$/i);

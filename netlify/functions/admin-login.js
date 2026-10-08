@@ -1,22 +1,26 @@
-const { adminEmail, verifyPassword, makeToken } = require('./auth');
+const { connectLambda } = require('@netlify/blobs');
+const { adminEmail, getAdminCredential, makeToken, sessionCookie, verifyPassword } = require('./auth');
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return json(405, { error: 'Método não permitido' });
   try {
+    connectLambda(event);
     const body = JSON.parse(event.body || '{}');
     const email = String(body.email || '').trim().toLowerCase();
     const password = String(body.password || '');
     if (Buffer.byteLength(password, 'utf8') > 1024) return json(401, { error: 'E-mail ou senha inválidos.' });
-    const ok = email === adminEmail() && verifyPassword(password);
+    if (email !== adminEmail()) return json(401, { error: 'E-mail ou senha inválidos.' });
+    const credential = await getAdminCredential();
+    const ok = verifyPassword(password, credential.passwordHash);
     if (!ok) return json(401, { error: 'E-mail ou senha inválidos.' });
-    const token = makeToken();
+    const token = makeToken(credential.version);
     return {
       statusCode: 200,
       headers: {
         'content-type': 'application/json',
         'cache-control': 'no-store',
-        'set-cookie': 'mk_admin=' + token + '; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=604800'
+        'set-cookie': sessionCookie(token)
       },
-      body: JSON.stringify({ ok: true })
+      body: JSON.stringify({ ok: true, mustChangePassword: credential.mustChangePassword })
     };
   } catch (error) {
     console.error('MK admin-login error:', error);

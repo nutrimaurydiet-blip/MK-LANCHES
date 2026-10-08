@@ -23,6 +23,11 @@
   status = 200
 
 [[redirects]]
+  from = "/api/admin-password"
+  to = "/.netlify/functions/admin-password"
+  status = 200
+
+[[redirects]]
   from = "/api/admin-logout"
   to = "/.netlify/functions/admin-logout"
   status = 200

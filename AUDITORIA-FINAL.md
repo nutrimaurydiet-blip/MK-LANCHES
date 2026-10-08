@@ -11,6 +11,7 @@
 - Login com senha correta e incorreta, token assinado, cookie e rejeição de token inválido foram testados com credenciais temporárias.
 - PUT do catálogo aceitou texto que contém caracteres HTML, normalizou o WhatsApp e rejeitou URL de imagem e cor inválidas em armazenamento simulado.
 - `npm run dev` com Netlify Dev retornou HTTP 200 em `/api/store`, com 4 categorias, 16 produtos e o preço esperado do X-Bacon; a página pública foi verificada sem o aviso de fallback.
+- O fluxo de troca obrigatória foi testado com credenciais temporárias e Blobs simulado: primeiro login exige troca, senha atual incorreta e senha nova curta são rejeitadas, a troca invalida a sessão anterior e a nova senha libera o painel.
 
 ## Causa do aviso no desenvolvimento local
 O aviso aparecia porque a prévia anterior usava um servidor HTTP estático: `/api/store` retornava 404 e não executava os redirects/funções. Ao trocar para Netlify Dev, a função era executada, mas o Lambda compatibility não inicializava automaticamente o contexto do Netlify Blobs e retornava HTTP 500 (`MissingBlobsEnvironmentError`). As funções que usam Blobs agora chamam `connectLambda(event)` antes de abrir o store.

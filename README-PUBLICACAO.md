@@ -15,6 +15,7 @@ Projeto **totalmente separado do NEXXORA**.
 - Login administrativo por cookie `HttpOnly`, `Secure` e `SameSite=Lax`.
 - Sessão assinada com `ADMIN_SESSION_SECRET`.
 - Senha administrativa verificada com scrypt e credenciais mantidas em variáveis privadas.
+- Troca obrigatória da senha provisória no primeiro login; sessões anteriores são invalidadas depois da troca.
 - Código das Netlify Functions fica fora do diretório público.
 - Proteções básicas de segurança e `no-store` no painel/API.
 - Carrinho remove produtos que ficaram inativos/removidos.
@@ -47,12 +48,13 @@ Não apague o site antigo antes de validar o novo. O catálogo salvo no Netlify 
 3. Confirme que o Netlify está usando o `netlify.toml` incluído.
 4. Configure `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` e `ADMIN_SESSION_SECRET`.
 5. Faça um novo deploy após configurar as variáveis.
-6. Abra `/admin/` e teste o login.
-7. Teste alterar nome, preço, promoção, descrição, ingredientes, adicionais, categoria, ativo/inativo e foto.
-8. Recarregue o painel e confirme que as alterações continuam salvas.
-9. Abra o site público em outro navegador/dispositivo e confirme as alterações.
-10. Faça pedidos de retirada e delivery, com Pix, cartão e dinheiro/troco.
-11. Só depois da aprovação final, encerre o site antigo.
+6. Abra `/admin/`, entre com a senha provisória correspondente ao hash e defina uma nova senha forte quando solicitado.
+7. Saia e entre novamente usando a nova senha para confirmar a atualização.
+8. Teste alterar nome, preço, promoção, descrição, ingredientes, adicionais, categoria, ativo/inativo e foto.
+9. Recarregue o painel e confirme que as alterações continuam salvas.
+10. Abra o site público em outro navegador/dispositivo e confirme as alterações.
+11. Faça pedidos de retirada e delivery, com Pix, cartão e dinheiro/troco.
+12. Só depois da aprovação final, encerre o site antigo.
 
 ## WhatsApp
 Os pedidos usam WhatsApp Click-to-Chat para o número `5569984496963`. Não é necessário token da Meta para esse fluxo.

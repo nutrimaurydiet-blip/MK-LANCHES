@@ -21,4 +21,6 @@ O catálogo e as imagens usam Netlify Blobs nas funções `store`, `upload-image
 
 As funções CommonJS usam o modo Lambda compatibility do Netlify. Elas inicializam o contexto Blobs de cada evento com `connectLambda(event)` antes de acessar o armazenamento. Isso também é necessário em `netlify dev`, que fornece o armazenamento local isolado. Para produção, publique pelo Netlify com o diretório de funções definido em `netlify.toml`.
 
+O fluxo de primeiro acesso do painel armazena a credencial scrypt atualizada no store privado `mk-lanches-auth`; a rota `POST /api/admin-password` exige sessão válida e senha atual, e o novo hash passa a ser a credencial ativa. Defina `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` e `ADMIN_SESSION_SECRET` no ambiente de produção das Functions antes do deploy.
+
 O arquivo `supabase/schema.sql` é apenas um schema inicial para uma integração Supabase futura; não faz parte do caminho ativo de leitura/salvamento do catálogo.
