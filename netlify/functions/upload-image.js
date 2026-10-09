@@ -26,10 +26,11 @@ exports.handler = async (event) => {
     // Não passamos Buffer diretamente para evitar incompatibilidade de runtime.
     const blob = new Blob([bytes], { type: contentType });
     const key = `img-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-    const store = getStore({ name: 'mk-lanches-images' });
+    const tenant = event.queryStringParameters?.loja === 'caramelo' ? 'caramelo' : 'mk';
+    const store = getStore({ name: tenant === 'caramelo' ? 'caramelo-lanches-images' : 'mk-lanches-images' });
     await store.set(key, blob, { metadata: { contentType } });
 
-    return json(200, { ok: true, url: `/api/image?key=${encodeURIComponent(key)}`, key });
+    return json(200, { ok: true, url: `/api/image?${tenant === 'caramelo' ? 'loja=caramelo&' : ''}key=${encodeURIComponent(key)}`, key });
   } catch (error) {
     console.error('MK upload-image error:', error);
     return json(500, { error: 'Não foi possível salvar a imagem agora. Tente novamente.' });
