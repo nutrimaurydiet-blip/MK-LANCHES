@@ -1,5 +1,10 @@
 const { connectLambda, getStore } = require('@netlify/blobs');
 const { isAdmin } = require('./auth');
+const CARAMELO_DEFAULT = {
+  company:{name:'Caramelo Lanches',bio:'Lanches feitos com carinho.',address:'',city:'',hours:'',whatsapp:'5569992532996',instagram:'',logo:'',tagline:'SABOR QUE DÁ VONTADE 🍔',primaryColor:'#7a3e20',accentColor:'#f5c66b'},
+  categories:[{id:'lanches',name:'Lanches',icon:'🍔',active:true},{id:'porcoes',name:'Porções',icon:'🍟',active:true},{id:'bebidas',name:'Bebidas',icon:'🥤',active:true},{id:'combos',name:'Combos',icon:'🍟',active:true}],
+  products:[]
+};
 const DEFAULT = {
   company:{name:'MK Lanches',bio:'O melhor dos lanches artesanais para vc e sua família!',address:'Av. Belo Horizonte, 4466',city:'Rolim de Moura - RO',hours:'18:00–23:30',whatsapp:'5569984496963',instagram:'@mk_lanchesrm',logo:'assets/logo-mk-lanches.jpg'},
   categories:[{id:'lanches',name:'Lanches',icon:'🍔',active:true},{id:'porcoes',name:'Porções',icon:'🍟',active:true},{id:'bebidas',name:'Bebidas',icon:'🥤',active:true},{id:'combos',name:'Combos',icon:'🌭',active:true}],
@@ -24,10 +29,11 @@ const DEFAULT = {
 exports.handler=async(event)=>{
   try {
     connectLambda(event);
-    const store=getStore({name:'mk-lanches-data'});
+    const tenant = event.queryStringParameters?.loja === 'caramelo' ? 'caramelo' : 'mk';
+    const store=getStore({name:tenant==='caramelo'?'caramelo-lanches-data':'mk-lanches-data'});
     if(event.httpMethod==='GET'){
       let data=await store.get('catalog',{type:'json'});
-      if(!data){data=DEFAULT; await store.setJSON('catalog',data);}
+      if(!data){data=tenant==='caramelo'?CARAMELO_DEFAULT:DEFAULT; await store.setJSON('catalog',data);}
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
