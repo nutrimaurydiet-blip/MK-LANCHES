@@ -3,3 +3,6 @@
 .promo{color:#ffd400;font-weight:900}.card del{color:#777;margin-right:5px}.customPrice{font-size:24px;font-weight:900;margin:10px 0}.addonList{display:grid;gap:10px;margin:15px 0}.addonList label{padding:10px;background:#171717;border-radius:10px}.addonsText{font-size:12px;color:#aaa;margin-top:3px}
 
 .apiNotice{position:sticky;top:0;z-index:9999;background:#ffd400;color:#050505;padding:10px 14px;text-align:center;font-weight:700}
+
+/* Product placeholder for items without a company-specific photo */
+.productPlaceholder{width:100%;aspect-ratio:16/10;display:grid;place-items:center;background:linear-gradient(135deg,rgba(169,31,25,.16),rgba(244,179,35,.12));font-size:clamp(3rem,10vw,5rem);border-radius:14px 14px 0 0}
