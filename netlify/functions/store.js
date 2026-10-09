@@ -61,7 +61,7 @@ exports.handler=async(event)=>{
     const store=getStore({name:tenant==='caramelo'?'caramelo-lanches-data':'mk-lanches-data'});
     if(event.httpMethod==='GET'){
       let data=await store.get('catalog',{type:'json'});
-      if(!data){data=tenant==='caramelo'?CARAMELO_DEFAULT:DEFAULT; await store.setJSON('catalog',data);}
+      if(!data||(tenant==='caramelo'&&(!Array.isArray(data.products)||data.products.length===0))){data=tenant==='caramelo'?CARAMELO_DEFAULT:DEFAULT; await store.setJSON('catalog',data);}
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
