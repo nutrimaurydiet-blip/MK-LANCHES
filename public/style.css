@@ -5,3 +5,6 @@
 .apiNotice{position:sticky;top:0;z-index:9999;background:#ffd400;color:#050505;padding:10px 14px;text-align:center;font-weight:700}
 
 .productImagePlaceholder{min-height:150px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#181818,#2b2115);color:#c6a45b;font-weight:800;letter-spacing:.04em;text-align:center}.line .productImagePlaceholder{width:65px;min-height:65px;font-size:9px;border-radius:10px}.storeBrand{font-size:18px;color:var(--yellow);margin-right:auto;margin-left:10px}
+
+/* Evita mostrar a marca da loja padrão antes de carregar a loja escolhida. */
+body.booting{visibility:hidden}
