@@ -8,3 +8,36 @@
 
 /* Evita mostrar a marca da loja padrão antes de carregar a loja escolhida. */
 body.booting{visibility:hidden}
+
+/* Identidade visual Caramelo: creme, marrom, coral e caramelo */
+:root{--bg:#fbf0dc;--card:#fffaf0;--yellow:#f2a83b;--red:#e85b4b;--muted:#6e5145}
+body{background:#fbf0dc;color:#42251d;font-family:Arial,Helvetica,sans-serif}
+.top{background:#fff7e8ee;border-bottom:1px solid #ead6b7;color:#42251d}
+.icon,.cartIcon{color:#42251d}
+.hero{padding:22px 20px 26px;background:linear-gradient(135deg,#fff7e8,#f9e5c8);color:#42251d;grid-template-columns:120px 1fr;align-items:center;gap:18px}
+.hero>img{width:112px;height:112px;object-fit:contain;border-radius:0;box-shadow:none;background:transparent}
+.hero span{color:#9c3e2c}
+.hero h1{font-size:clamp(30px,7vw,44px);line-height:1.02;margin:12px 0;color:#42251d}
+.hero h1 strong{font-size:clamp(34px,8vw,48px);color:#e85b4b}
+.hero p{color:#6e5145}
+.primary,.add{background:#e85b4b;color:#fff;border-radius:12px}
+.cats{background:#fff7e8}
+.cat{background:#fffaf0;color:#42251d;border-color:#ead6b7}
+.cat.active{border-color:#f2a83b;box-shadow:0 0 12px #f2a83b44}
+.sectionTitle h2{color:#42251d}
+.sectionTitle button{color:#9c3e2c;border-color:#e85b4b}
+.card{background:#fffaf0;border-color:#ead6b7;color:#42251d;box-shadow:0 3px 12px #6a34100d}
+.card p{color:#7b655b}
+.price{color:#9c3e2c}
+.productImagePlaceholder{background:linear-gradient(135deg,#f8e8d0,#f2d7b7);color:#8a5540}
+.stickyCart{background:#fffaf0f5;border-color:#ead6b7;color:#42251d;box-shadow:0 3px 20px #60381b20}
+.stickyCart small{color:#7b655b}
+.whats{background:#e85b4b;color:white}
+footer{background:#4a281f;color:#f7e7d0}
+footer b{color:#fff7e8}footer a{color:#f2b15a}
+.sheet{background:#fffaf0;color:#42251d}
+.field{background:#fff7e8;border-color:#ead6b7;color:#42251d}
+.choiceRow label{background:#fff7e8;border-color:#ead6b7}
+.qty button{background:#fff7e8;color:#42251d;border-color:#ead6b7}
+@media(max-width:420px){.hero{grid-template-columns:1fr;gap:10px}.hero>img{width:96px;height:96px;margin:0 auto 4px}.hero h1{font-size:38px}.hero h1 strong{font-size:44px}}
+@media(min-width:800px){.hero{grid-template-columns:190px 1fr;padding:38px 44px}.hero>img{width:170px;height:170px}.hero h1{font-size:56px}.hero h1 strong{font-size:64px}}
