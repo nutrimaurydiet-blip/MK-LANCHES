@@ -14,7 +14,7 @@ function tabs(){document.querySelectorAll('.nav[data-tab]').forEach(b=>b.onclick
 function renderAll(){renderStats();renderProducts();renderCategories();fillStore();fillAppearance();tabs();const brand=TENANT==='caramelo'?'Caramelo Lanches':'MK Lanches';$('adminBrand').textContent=brand;document.title=brand+' | Painel Administrativo';const sw=$('storeSwitch');if(sw){sw.value=TENANT;sw.onchange=()=>{location.href='/admin/'+(sw.value==='caramelo'?'?loja=caramelo':'')}}}
 function renderStats(){$('stats').innerHTML=`<div><b>${DATA.products.length}</b><span>Produtos cadastrados</span></div><div><b>${DATA.products.filter(p=>p.active).length}</b><span>Produtos ativos</span></div><div><b>${DATA.categories.filter(c=>c.active).length}</b><span>Categorias ativas</span></div>`}
 function esc(v){return String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[m]))}
-function imageUrl(v){const s=String(v||'');return /^assets\/(?!.*\.\.)[A-Za-z0-9._/-]+$/.test(s)||/^\/api\/image\?key=[A-Za-z0-9_-]+$/.test(s)||/^https:\/\/[^\s"'<>\\]+$/i.test(s)?s:'../assets/porcao.jpg'}
+function imageUrl(v){const s=String(v||'');return /^assets\/(?!.*\.\.)[A-Za-z0-9._/-]+$/.test(s)||/^\/api\/image\?(?:loja=caramelo&)?key=[A-Za-z0-9_-]+$/.test(s)||/^https:\/\/[^\s"'<>\\]+$/i.test(s)?s:'../assets/porcao.jpg'}
 function showLogoPreview(src){const preview=$('logoPreview');preview.replaceChildren();if(src){const img=document.createElement('img');img.src=src;img.className='miniPreview';preview.appendChild(img)}}
 function renderProducts(){const q=($('productSearch')?.value||'').toLowerCase();const arr=DATA.products.filter(p=>String(p.name||'').toLowerCase().includes(q));$('productList').innerHTML=arr.map(p=>`<div class="product"><img src="${esc(imageUrl(p.image))}" onerror="this.src='../assets/porcao.jpg'"><div class="grow"><b>${esc(p.name)}</b><small>${esc(DATA.categories.find(c=>c.id===p.category)?.name||p.category)} · ${p.promoPrice?`<del>${money(p.price)}</del> ${money(p.promoPrice)}`:money(p.price)}</small><small>${p.active?'🟢 Ativo':'🔴 Inativo'}</small></div><button class="toggle ${p.active?'on':''}" onclick="toggleProduct('${esc(p.id)}')">${p.active?'Ativo':'Inativo'}</button><button onclick="editProduct('${esc(p.id)}')">Editar</button><button class="danger" onclick="deleteProduct('${esc(p.id)}')">Excluir</button></div>`).join('')||'<div class="empty">Nenhum produto.</div>'}
 $('productSearch').oninput=renderProducts;
@@ -41,7 +41,7 @@ function resizeImage(file,cb){
       const c=document.createElement('canvas'); c.width=Math.max(1,Math.round(im.width*s)); c.height=Math.max(1,Math.round(im.height*s));
       const ctx=c.getContext('2d'); ctx.drawImage(im,0,0,c.width,c.height);
       const data=c.toDataURL('image/webp',.78);
-      if(data.length>5.5*1024*1024){alert('A imagem ainda ficou muito grande. Escolha uma foto menor.');return}
+      if(data.length>5.1*1024*1024){alert('A foto ainda ficou grande demais para o servidor. Escolha uma imagem menor ou tire uma foto em resolução mais baixa.');return}
       cb(data);
     };
     im.src=r.result;
