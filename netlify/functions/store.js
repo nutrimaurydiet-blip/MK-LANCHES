@@ -114,6 +114,6 @@ function validateCatalog(input){
 }
 function validImageUrl(value){
   const url=cleanText(value,1000);
-  return /^assets\/(?!.*\.\.)[A-Za-z0-9._/-]+$/.test(url)||/^\/api\/image\?key=[A-Za-z0-9_-]+$/.test(url)||/^https:\/\/[^\s"'<>\\]+$/i.test(url);
+  return /^assets\/(?!.*\.\.)[A-Za-z0-9._/-]+$/.test(url)||/^\/api\/image\?(?:loja=caramelo&)?key=[A-Za-z0-9_-]+$/.test(url)||/^https:\/\/[^\s"'<>\\]+$/i.test(url);
 }
 function json(status,body){return {statusCode:status,headers:{'content-type':'application/json','cache-control':'no-store'},body:JSON.stringify(body)}}
