@@ -31,7 +31,12 @@ exports.handler=async(event)=>{
     const initialData = storeId === 'caramelo' ? CARAMELO : DEFAULT;
     if(event.httpMethod==='GET'){
       let data=await store.get(catalogKey,{type:'json'});
-      if(!data){data=initialData; await store.setJSON(catalogKey,data);}
+      if(!data){
+        // Preserve the existing live MK catalog when migrating from the legacy single-catalog key.
+        const legacy = storeId === 'mk' ? await store.get('catalog',{type:'json'}) : null;
+        data = legacy || initialData;
+        await store.setJSON(catalogKey,data);
+      }
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
