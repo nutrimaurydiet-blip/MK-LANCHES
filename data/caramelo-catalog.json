@@ -1,9 +1,9 @@
 {
   "company": {
     "name": "Caramelo Lanches",
-    "tagline": "Caramelo • Comida de Rua",
-    "bio": "Comida de rua",
-    "logo": "",
+    "tagline": "Sabor e qualidade em cada mordida!",
+    "bio": "Lanches que fazem seu dia mais gostoso!",
+    "logo": "assets/caramelo-logo.jpg",
     "primaryColor": "#A91F19",
     "accentColor": "#F4B323",
     "address": "",
