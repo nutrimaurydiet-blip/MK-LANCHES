@@ -1,5 +1,6 @@
 const { connectLambda, getStore } = require('@netlify/blobs');
 const { isAdmin } = require('./auth');
+const CARAMELO = require('../../data/caramelo-catalog.json');
 const DEFAULT = {
   company:{name:'MK Lanches',bio:'O melhor dos lanches artesanais para vc e sua família!',address:'Av. Belo Horizonte, 4466',city:'Rolim de Moura - RO',hours:'18:00–23:30',whatsapp:'5569984496963',instagram:'@mk_lanchesrm',logo:'assets/logo-mk-lanches.jpg'},
   categories:[{id:'lanches',name:'Lanches',icon:'🍔',active:true},{id:'porcoes',name:'Porções',icon:'🍟',active:true},{id:'bebidas',name:'Bebidas',icon:'🥤',active:true},{id:'combos',name:'Combos',icon:'🌭',active:true}],
@@ -24,10 +25,13 @@ const DEFAULT = {
 exports.handler=async(event)=>{
   try {
     connectLambda(event);
+    const storeId = event.queryStringParameters?.store === 'caramelo' ? 'caramelo' : 'mk';
     const store=getStore({name:'mk-lanches-data'});
+    const catalogKey = `catalog-${storeId}`;
+    const initialData = storeId === 'caramelo' ? CARAMELO : DEFAULT;
     if(event.httpMethod==='GET'){
-      let data=await store.get('catalog',{type:'json'});
-      if(!data){data=DEFAULT; await store.setJSON('catalog',data);}
+      let data=await store.get(catalogKey,{type:'json'});
+      if(!data){data=initialData; await store.setJSON(catalogKey,data);}
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
@@ -36,7 +40,7 @@ exports.handler=async(event)=>{
       try{data=JSON.parse(event.body||'{}')}catch{return json(400,{error:'JSON inválido.'})}
       const checked=validateCatalog(data);
       if(!checked.ok)return json(400,{error:checked.error});
-      await store.setJSON('catalog',checked.data);
+      await store.setJSON(catalogKey,checked.data);
       return json(200,{ok:true,data:checked.data});
     }
     return json(405,{error:'Método não permitido'});
