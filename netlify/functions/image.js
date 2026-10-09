@@ -6,7 +6,8 @@ exports.handler = async (event) => {
     const key = event.queryStringParameters?.key;
     if (!key || !/^img-[A-Za-z0-9_-]+$/.test(key)) return { statusCode: 400, body: 'Imagem não informada' };
 
-    const store = getStore({ name: 'mk-lanches-images' });
+    const tenant = event.queryStringParameters?.loja === 'caramelo' ? 'caramelo' : 'mk';
+    const store = getStore({ name: tenant === 'caramelo' ? 'caramelo-lanches-images' : 'mk-lanches-images' });
     const item = await store.getWithMetadata(key, { type: 'arrayBuffer' });
     if (!item) return { statusCode: 404, body: 'Imagem não encontrada' };
 
