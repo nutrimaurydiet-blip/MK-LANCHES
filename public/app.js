@@ -9,8 +9,38 @@ const esc=v=>String(v??'').replace(/[&<>\"']/g,m=>({'&':'&amp;','<':'&lt;','>':'
 const imageUrl=v=>{const s=String(v||'');return /^assets\/(?!.*\.\.)[A-Za-z0-9._/-]+$/.test(s)||/^\/api\/image\?(?:loja=caramelo&)?key=[A-Za-z0-9_-]+$/.test(s)||/^https:\/\/[^\s"'<>\\]+$/i.test(s)?s:'assets/porcao.jpg'};
 const colorValue=(v,fallback)=>/^#[0-9a-f]{6}$/i.test(String(v||''))?v:fallback;
 const whatsappNumber=v=>{const n=String(v||'').replace(/\D/g,'');return /^\d{10,15}$/.test(n)?n:WA};
-async function loadData(){try{const r=await fetch('/api/store'+(TENANT==='caramelo'?'?loja=caramelo':''),{cache:'no-store'});if(!r.ok)throw new Error('API indisponível');const d=await r.json();if(!d||!Array.isArray(d.products))throw new Error('Catálogo inválido');DATA=d}catch{DATA=JSON.parse(JSON.stringify(fallback));document.body.insertAdjacentHTML('afterbegin','<div class="apiNotice">Não foi possível atualizar o catálogo agora. Exibindo o catálogo de segurança.</div>')}active=DATA.categories.find(c=>c.active)?.id||'todos';applyCompany();renderCats();render();update()}
-function applyCompany(){const c=DATA.company||fallback.company;const instagram=String(c.instagram||'').replace(/^@/,'').replace(/[^A-Za-z0-9._]/g,'');document.documentElement.style.setProperty('--red',colorValue(c.primaryColor,'#e52520'));document.documentElement.style.setProperty('--yellow',colorValue(c.accentColor,'#ffd400'));document.title=`${c.name||'MK Lanches'} | Pedidos`;const logo=c.logo?imageUrl(c.logo):(TENANT==='caramelo'?'assets/logo-caramelo-lanches.jpg':'assets/logo-mk-lanches.jpg');const heroLogo=document.querySelector('.hero img'),topLogo=document.querySelector('.top .brand');[heroLogo,topLogo].forEach(img=>{if(logo){img.src=logo;img.hidden=false;img.onerror=()=>{img.hidden=true}}else{img.removeAttribute('src');img.hidden=true}});heroLogo.alt=c.name||'Loja';topLogo.alt=c.name||'Loja';if(TENANT==='caramelo')document.documentElement.classList.add('caramelo-ready');const heroTitle=document.querySelector('.hero h1');if(TENANT==='caramelo'){heroTitle.innerHTML='<strong>'+esc(c.name||'Caramelo Lanches')+'</strong><br>Faça seu pedido!';heroTitle.style.fontSize='clamp(30px,8vw,42px)'}document.querySelector('.hero span').textContent=c.tagline||(TENANT==='caramelo'?'SABOR QUE DÁ VONTADE 🍔':'NO MOLHO 🔥 NA CHAPA');document.querySelector('.hero p').textContent=c.bio||'';const ft=document.querySelector('footer');ft.innerHTML=`<b>${esc(c.name||'')}</b><span>${esc(c.city||'')}</span><span>${esc(c.hours||'')}</span><a href="https://wa.me/${whatsappNumber(c.whatsapp)}">WhatsApp</a><a href="https://instagram.com/${encodeURIComponent(instagram)}">Instagram</a>`}
+async function loadData(){try{const r=await fetch('/api/store'+(TENANT==='caramelo'?'?loja=caramelo':''),{cache:'no-store'});if(!r.ok)throw new Error('API indisponível');const d=await r.json();if(!d||!Array.isArray(d.products))throw new Error('Catálogo inválido');DATA=d}catch{DATA=JSON.parse(JSON.stringify(fallback));document.body.insertAdjacentHTML('afterbegin','<div class="apiNotice">Não foi possível atualizar o catálogo agora. Exibindo o catálogo de segurança.</div>')}active=DATA.categories.find(c=>c.active)?.id||'todos';await applyCompany();renderCats();render();update()}
+async function applyCompany(){
+const c=DATA.company||fallback.company;
+const instagram=String(c.instagram||'').replace(/^@/,'').replace(/[^A-Za-z0-9._]/g,'');
+document.documentElement.style.setProperty('--red',colorValue(c.primaryColor,'#e52520'));
+document.documentElement.style.setProperty('--yellow',colorValue(c.accentColor,'#ffd400'));
+document.title=`${c.name||'MK Lanches'} | Pedidos`;
+/* Caramelo sempre usa a logo oficial versionada que está no repositório. */
+const logo=TENANT==='caramelo'?'/assets/logo-caramelo-lanches.jpg?v=20261010':(c.logo?imageUrl(c.logo):'/assets/logo-mk-lanches.jpg');
+const heroLogo=document.querySelector('.hero img'),topLogo=document.querySelector('.top .brand');
+const images=[heroLogo,topLogo];
+if(TENANT==='caramelo') document.documentElement.classList.remove('caramelo-ready');
+images.forEach(img=>{img.hidden=true;img.alt=c.name||'Loja';img.onerror=()=>{img.hidden=true};});
+const loaded=images.map(img=>new Promise(resolve=>{
+img.onload=()=>resolve(true);
+img.onerror=()=>resolve(false);
+img.src=logo;
+if(img.complete&&img.naturalWidth>0)resolve(true);
+}));
+const imageResults=await Promise.all(loaded);
+images.forEach((img,i)=>{img.hidden=!imageResults[i]||img.naturalWidth===0});
+if(TENANT==='caramelo') document.documentElement.classList.add('caramelo-ready');
+const heroTitle=document.querySelector('.hero h1');
+if(TENANT==='caramelo'){
+heroTitle.innerHTML='<strong>'+esc(c.name||'Caramelo Lanches')+'</strong><br>Faça seu pedido!';
+heroTitle.style.fontSize='clamp(30px,8vw,42px)';
+}
+document.querySelector('.hero span').textContent=c.tagline||(TENANT==='caramelo'?'SABOR QUE DÁ VONTADE 🍔':'NO MOLHO 🔥 NA CHAPA');
+document.querySelector('.hero p').textContent=c.bio||'';
+const ft=document.querySelector('footer');
+ft.innerHTML=`<b>${esc(c.name||'')}</b><span>${esc(c.city||'')}</span><span>${esc(c.hours||'')}</span><a href="https://wa.me/${whatsappNumber(c.whatsapp)}">WhatsApp</a><a href="https://instagram.com/${encodeURIComponent(instagram)}">Instagram</a>`;
+}
 function renderCats(){const cs=DATA.categories.filter(c=>c.active);document.getElementById('cats').innerHTML=cs.map(c=>`<button class="cat ${active===c.id?'active':''}" data-category-id="${esc(c.id)}"><span>${esc(c.icon||'•')}</span>${esc(c.name)}</button>`).join('')}
 function render(){const ps=DATA.products.filter(p=>p.active&&(active==='todos'||p.category===active));document.querySelector('.sectionTitle h2').textContent=active==='todos'?'🔥 Todos':(DATA.categories.find(c=>c.id===active)?.icon||'')+' '+(DATA.categories.find(c=>c.id===active)?.name||'Produtos');document.getElementById('products').innerHTML=ps.map(p=>{const price=p.promoPrice&&Number(p.promoPrice)>0&&Number(p.promoPrice)<Number(p.price)?`<del>${money(p.price)}</del> <span class="price promo">${money(p.promoPrice)}</span>`:`<span class="price">${money(p.price)}</span>`;const pid=encodeURIComponent(String(p.id));return `<article class="card" data-product-id="${esc(pid)}">${p.image?`<img src="${esc(imageUrl(p.image))}" alt="${esc(p.name)}" loading="lazy" onerror="this.hidden=true">`:`<div class="productPlaceholder" aria-label="Foto de ${esc(p.name)}">🍔</div>`}<div class="body"><h3>${esc(p.name)}</h3><p>${esc(p.description||'')}</p><div>${price}</div><button type="button" class="add" data-add-product="${esc(pid)}">Adicionar ao carrinho</button></div></article>`}).join('')||(TENANT==='caramelo'&&!DATA.products.some(p=>p.active)?'<div class="empty">Estamos preparando nosso cardápio. Em breve você poderá fazer seu pedido por aqui.</div>':'<div class="empty">Nenhum produto nessa categoria.</div>')}
 function filterCat(c){active=c;renderCats();render()}
