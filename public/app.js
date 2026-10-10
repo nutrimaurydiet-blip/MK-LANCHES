@@ -15,9 +15,9 @@ const c=DATA.company||fallback.company;
 const instagram=String(c.instagram||'').replace(/^@/,'').replace(/[^A-Za-z0-9._]/g,'');
 document.documentElement.style.setProperty('--red',colorValue(c.primaryColor,'#e52520'));
 document.documentElement.style.setProperty('--yellow',colorValue(c.accentColor,'#ffd400'));
-document.title=`${c.name||'MK Lanches'} | Pedidos`;
+document.title=`${TENANT==='caramelo'?'Caramelo Lanches':(c.name||'MK Lanches')} | Pedidos`;
 /* Caramelo sempre usa a logo oficial versionada que está no repositório. */
-const logo=TENANT==='caramelo'?'/assets/logo-caramelo-lanches.jpg?v=tenant-isolation-20261010-1':(c.logo?imageUrl(c.logo):'/assets/logo-mk-lanches.jpg');
+const savedLogo=String(c.logo||'').trim();const unsafeCarameloLogo=TENANT==='caramelo'&&/(?:logo-mk-lanches|source-logo-page)/i.test(savedLogo);const logo=TENANT==='caramelo'?(savedLogo&&!unsafeCarameloLogo?imageUrl(savedLogo):'/assets/logo-caramelo-lanches.jpg?v=tenant-isolation-20261010-2'):(savedLogo?imageUrl(savedLogo):'/assets/logo-mk-lanches.jpg');
 const heroLogo=document.querySelector('.hero img'),topLogo=document.querySelector('.top .brand');
 const images=[heroLogo,topLogo];
 if(TENANT==='caramelo') document.documentElement.classList.remove('caramelo-ready');
