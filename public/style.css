@@ -6,3 +6,6 @@
 
 /* Product placeholder for items without a company-specific photo */
 .productPlaceholder{width:100%;aspect-ratio:16/10;display:grid;place-items:center;background:linear-gradient(135deg,rgba(169,31,25,.16),rgba(244,179,35,.12));font-size:clamp(3rem,10vw,5rem);border-radius:14px 14px 0 0}
+
+/* Tenant isolation: never expose MK branding while Caramelo config/logo is loading. */
+html.tenant-caramelo.tenant-pending body{visibility:hidden!important}html.tenant-caramelo{background:#050505}html.tenant-caramelo .top .brand[hidden],html.tenant-caramelo .hero>img[hidden]{display:none!important}
