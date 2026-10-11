@@ -1,5 +1,6 @@
 const { connectLambda, getStore } = require('@netlify/blobs');
 const { isAdmin } = require('./auth');
+const MK_DELIVERY_DEFAULT = [{"id":"bairro-1","name":"Centro","fee":7,"active":true},{"id":"bairro-2","name":"Beira Rio","fee":7,"active":true},{"id":"bairro-3","name":"Olímpico","fee":7,"active":true},{"id":"bairro-4","name":"São Cristóvão","fee":7,"active":true},{"id":"bairro-5","name":"Boa Esperança","fee":7,"active":true},{"id":"bairro-6","name":"Cohab","fee":7,"active":true},{"id":"bairro-7","name":"Planalto","fee":7,"active":true},{"id":"bairro-8","name":"Centenário","fee":7,"active":true},{"id":"bairro-9","name":"Cidade Alta 1, 2 ou 3","fee":7,"active":true},{"id":"bairro-10","name":"Industrial","fee":7,"active":true},{"id":"bairro-11","name":"Jatobá 1 ou 2","fee":7,"active":true},{"id":"bairro-12","name":"Jardim Tropical","fee":7,"active":true},{"id":"bairro-13","name":"Jequitibá","fee":7,"active":true},{"id":"bairro-14","name":"Nova Morada","fee":7,"active":true},{"id":"bairro-15","name":"Assis Barroso","fee":7,"active":true},{"id":"bairro-16","name":"Jardim das Oliveiras","fee":7,"active":true},{"id":"bairro-17","name":"Bom Jardim ou Mutirão","fee":7,"active":true},{"id":"bairro-18","name":"Buritis ou Cidade Jardim","fee":7,"active":true},{"id":"bairro-19","name":"Loteamento Bela Vista","fee":7,"active":true},{"id":"bairro-20","name":"Nego do Guincho","fee":8,"active":true},{"id":"bairro-21","name":"Loteamento Planalto (a partir da Rua 12)","fee":8,"active":true},{"id":"bairro-22","name":"Nova Aliança","fee":8,"active":true},{"id":"bairro-23","name":"NSA Metais","fee":8,"active":true},{"id":"bairro-24","name":"Terapia Tropical","fee":8,"active":true},{"id":"bairro-25","name":"Hotel Pérola","fee":9,"active":true},{"id":"bairro-26","name":"Fiat e Mazzuti","fee":9,"active":true},{"id":"bairro-27","name":"Jardim dos Lagos","fee":9,"active":true},{"id":"bairro-28","name":"Loteamento Esplanada","fee":9,"active":true},{"id":"bairro-29","name":"Rua do Recreio","fee":9,"active":true},{"id":"bairro-30","name":"Farol","fee":12,"active":true},{"id":"bairro-31","name":"AABB","fee":12,"active":true},{"id":"bairro-32","name":"Adelaide","fee":12,"active":true},{"id":"bairro-33","name":"Jardim Eldorado","fee":12,"active":true},{"id":"bairro-34","name":"Parque de Exposições","fee":12,"active":true},{"id":"bairro-35","name":"Laticínios Miraella","fee":12,"active":true},{"id":"bairro-36","name":"Vila Celestino","fee":12,"active":true},{"id":"bairro-37","name":"Sherek","fee":15,"active":true},{"id":"bairro-38","name":"Aeroporto","fee":15,"active":true},{"id":"bairro-39","name":"Pamonharia Bambu","fee":18,"active":true},{"id":"bairro-40","name":"Distriboi","fee":18,"active":true}];
 const CARAMELO_DEFAULT = {
   company:{name:'Caramelo Lanches',bio:'Lanches feitos com carinho.',address:'',city:'',hours:'',whatsapp:'5569992532996',instagram:'',logo:'',tagline:'Sabor e qualidade em cada mordida!',primaryColor:'#A91F19',accentColor:'#F4B323'},
   categories:[{id:'especiais-ao-molho',name:'Especiais ao Molho',icon:'🌭',active:true},{id:'chefe-da-casa',name:'Chefe da Casa',icon:'🔥',active:true},{id:'misto-quente',name:'Misto Quente',icon:'🥪',active:true},{id:'combos',name:'Combos',icon:'🍔',active:true},{id:'especiais',name:'Especiais',icon:'🍔',active:true},{id:'porcoes',name:'Porções',icon:'🍟',active:true},{id:'bebidas',name:'Bebidas',icon:'🥤',active:true},{id:'sucos',name:'Sucos',icon:'🧃',active:true}],
@@ -62,6 +63,7 @@ exports.handler=async(event)=>{
     if(event.httpMethod==='GET'){
       let data=await store.get('catalog',{type:'json'});
       if(!data||(tenant==='caramelo'&&(!Array.isArray(data.products)||data.products.length===0))){data=tenant==='caramelo'?CARAMELO_DEFAULT:DEFAULT; await store.setJSON('catalog',data);}
+      if(!Array.isArray(data.deliveryAreas)){data.deliveryAreas=tenant==='mk'?MK_DELIVERY_DEFAULT:[];await store.setJSON('catalog',data);}
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
@@ -83,7 +85,7 @@ function cleanText(v,max=1000){return String(v??'').trim().slice(0,max)}
 function validateCatalog(input){
   if(!input||typeof input!=='object'||!input.company||!Array.isArray(input.categories)||!Array.isArray(input.products))return {ok:false,error:'Catálogo inválido.'};
   if(input.categories.length>100||input.products.length>500)return {ok:false,error:'Catálogo excede o limite permitido.'};
-  const data={company:{...input.company},categories:[],products:[]};
+  const data={company:{...input.company},categories:[],products:[],deliveryAreas:[]};
   for(const key of ['name','bio','address','city','hours','whatsapp','instagram','logo','tagline','primaryColor','accentColor'])data.company[key]=cleanText(input.company[key],500);
   if(!data.company.name)return {ok:false,error:'O nome da loja é obrigatório.'};
   if(data.company.whatsapp){
@@ -109,6 +111,16 @@ function validateCatalog(input){
     const addons=Array.isArray(p.addons)?p.addons.slice(0,50).map(a=>({id:cleanText(a.id||`addon-${Math.random()}`,100),name:cleanText(a.name,100),price:Number(a.price||0)})).filter(a=>a.name&&Number.isFinite(a.price)&&a.price>=0&&a.price<=999999):[];
     if(addons.length>50)return {ok:false,error:'Limite de adicionais excedido.'};
     data.products.push({id:cleanText(p.id,80),name:cleanText(p.name,150),category:cleanText(p.category,80),price:Math.round(price*100)/100,promoPrice:promo===null?null:Math.round(promo*100)/100,active:Boolean(p.active),image:cleanText(p.image,1000),description:cleanText(p.description,2000),ingredients:cleanText(p.ingredients,3000),addons});
+  }
+  const areas=Array.isArray(input.deliveryAreas)?input.deliveryAreas:[];
+  if(areas.length>500)return {ok:false,error:'Limite de localidades de entrega excedido.'};
+  const areaIds=new Set();
+  for(const area of areas){
+    if(!area||!/^[A-Za-z0-9_-]{1,80}$/.test(String(area.id||''))||!String(area.name||'').trim())return {ok:false,error:'Existe uma localidade de entrega inválida.'};
+    const id=cleanText(area.id,80),name=cleanText(area.name,120),fee=Number(area.fee);
+    if(areaIds.has(id))return {ok:false,error:'Há IDs repetidos nas localidades de entrega.'};
+    if(!Number.isFinite(fee)||fee<0||fee>9999)return {ok:false,error:'Taxa inválida na localidade '+name+'.'};
+    areaIds.add(id);data.deliveryAreas.push({id,name,fee:Math.round(fee*100)/100,active:area.active!==false});
   }
   return {ok:true,data};
 }
