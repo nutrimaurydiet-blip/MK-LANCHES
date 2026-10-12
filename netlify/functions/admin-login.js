@@ -5,10 +5,8 @@ exports.handler = async (event) => {
   try {
     connectLambda(event);
     const body = JSON.parse(event.body || '{}');
-    const email = String(body.email || '').trim().toLowerCase();
     const password = String(body.password || '');
-    if (Buffer.byteLength(password, 'utf8') > 1024) return json(401, { error: 'E-mail ou senha inválidos.' });
-    if (email !== adminEmail()) return json(401, { error: 'E-mail ou senha inválidos.' });
+    if (!password || Buffer.byteLength(password, 'utf8') > 1024) return json(401, { error: 'Senha inválida.' });
     const credential = await getAdminCredential();
     const ok = verifyPassword(password, credential.passwordHash);
     if (!ok) return json(401, { error: 'E-mail ou senha inválidos.' });
