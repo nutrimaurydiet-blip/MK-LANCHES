@@ -64,6 +64,10 @@ exports.handler=async(event)=>{
       let data=await store.get('catalog',{type:'json'});
       if(!data||(tenant==='caramelo'&&(!Array.isArray(data.products)||data.products.length===0))){data=tenant==='caramelo'?CARAMELO_DEFAULT:DEFAULT; await store.setJSON('catalog',data);}
       if(!Array.isArray(data.deliveryAreas)){data.deliveryAreas=tenant==='mk'?MK_DELIVERY_DEFAULT:[];await store.setJSON('catalog',data);}
+      if(tenant==='mk'&&(!Array.isArray(data.products)||!data.products.some(p=>p.id==='mk-x-mk'))){
+        data={...data,company:{...DEFAULT.company,...(data.company||{}),logo:''},categories:DEFAULT.categories,products:DEFAULT.products,deliveryAreas:Array.isArray(data.deliveryAreas)?data.deliveryAreas:MK_DELIVERY_DEFAULT};
+        await store.setJSON('catalog',data);
+      }
       return json(200,data);
     }
     if(event.httpMethod==='PUT'){
