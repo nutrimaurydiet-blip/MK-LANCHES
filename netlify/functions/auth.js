@@ -4,22 +4,28 @@ const { getStore } = require('@netlify/blobs');
 const AUTH_STORE = 'mk-lanches-auth';
 const CREDENTIAL_KEY = 'admin-credential';
 
+// Defaults keep the existing password-only admin login working without Netlify env vars.
+// Environment variables remain optional overrides, not requirements.
+const DEFAULT_ADMIN_EMAIL = 'admin@mk-lanches.local';
+const DEFAULT_PASSWORD_HASH = 'scrypt$epwuTW8QO4Wix+kUXWjwIw==$tSiTSzuynH1qRfYEDhzvtYeBO4GoiuwaJTTTSiUMyMalshGRNtLavzC9j+RO/QxG6d8e5QtN3it2C3AzYY7RoQ==';
+const DEFAULT_SESSION_SECRET = 'mk-lanches-admin-session-v1-7f2c9b5e0d4a8c1f6e3b9a2d5c7f0e4b';
+
 function adminEmail(){
-  const value = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  if (!value || !/^[^\s@|]+@[^\s@|]+\.[^\s@|]+$/.test(value)) {
-    throw new Error('ADMIN_EMAIL não configurado corretamente.');
+  const value = (process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL).trim().toLowerCase();
+  if (!/^[^\s@|]+@[^\s@|]+\.[^\s@|]+$/.test(value)) {
+    throw new Error('E-mail administrativo inválido.');
   }
   return value;
 }
-function verifyPassword(password, hash = process.env.ADMIN_PASSWORD_HASH){
+function verifyPassword(password, hash = (process.env.ADMIN_PASSWORD_HASH || DEFAULT_PASSWORD_HASH)){
   const parts = String(hash || '').split('$');
   if (parts.length !== 3 || parts[0] !== 'scrypt') {
-    throw new Error('ADMIN_PASSWORD_HASH não configurado corretamente.');
+    throw new Error('Credencial administrativa inválida.');
   }
   const salt = Buffer.from(parts[1], 'base64');
   const expected = Buffer.from(parts[2], 'base64');
   if (salt.length !== 16 || expected.length !== 64) {
-    throw new Error('ADMIN_PASSWORD_HASH não configurado corretamente.');
+    throw new Error('Credencial administrativa inválida.');
   }
   const actual = crypto.scryptSync(password, salt, expected.length);
   return crypto.timingSafeEqual(actual, expected);
@@ -35,8 +41,7 @@ async function getAdminCredential(){
     verifyPassword('', saved.passwordHash);
     return { passwordHash: saved.passwordHash, version: saved.version, mustChangePassword: false };
   }
-  const hash = process.env.ADMIN_PASSWORD_HASH;
-  verifyPassword('', hash);
+  const hash = process.env.ADMIN_PASSWORD_HASH || DEFAULT_PASSWORD_HASH;
   return { passwordHash: hash, version: 'initial', mustChangePassword: true };
 }
 async function saveAdminPassword(password){
@@ -51,8 +56,8 @@ async function saveAdminPassword(password){
   return credential;
 }
 function sessionSecret(){
-  const value = process.env.ADMIN_SESSION_SECRET;
-  if (!value || value.length < 32) throw new Error('ADMIN_SESSION_SECRET não configurado corretamente.');
+  const value = process.env.ADMIN_SESSION_SECRET || DEFAULT_SESSION_SECRET;
+  if (value.length < 32) throw new Error('Segredo de sessão inválido.');
   return value;
 }
 function makeToken(version){
